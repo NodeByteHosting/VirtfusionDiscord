@@ -10,6 +10,14 @@ const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const app = express();
 app.use(express.json({ limit: '2mb' }));
 
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${Date.now() - start}ms`);
+  });
+  next();
+});
+
 app.post(WEBHOOK_PATH, async (req, res) => {
   const payload = req.body;
   if (!payload || typeof payload.event !== 'string') {
